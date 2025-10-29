@@ -20,17 +20,18 @@ services:
         generateValue: true   # Securely generate a random secret on Render
       - key: FRONTEND_URL
         fromService:
-          type: static_site
+          type: web # Changed from 'static_site'
           name: pakomi-frontend # Must match the frontend service name below
           property: url
 
   # 2. Frontend Static Site (React/Vite)
-  - type: static_site
+  - type: web # Changed from 'static_site'
     name: pakomi-frontend
+    runtime: static # Added runtime for static site
     plan: starter
     rootDir: frontend
     buildCommand: "npm install && npm run build"
-    publishDir: "dist"
+    staticPublishPath: "dist" # Changed from 'publishDir'
     envVars:
       # This provides the base URL, e.g., https://pakomi-backend.onrender.com
       # The frontend's api.ts code will append '/api' to it.
