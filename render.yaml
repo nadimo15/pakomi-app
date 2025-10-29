@@ -18,11 +18,10 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true   # Securely generate a random secret on Render
+      # The frontend URL is constructed from the frontend service name.
+      # If you change the service name 'pakomi-frontend', you must update this URL.
       - key: FRONTEND_URL
-        fromService:
-          type: web # Changed from 'static_site'
-          name: pakomi-frontend # Must match the frontend service name below
-          property: url
+        value: https://pakomi-frontend.onrender.com
 
   # 2. Frontend Static Site (React/Vite)
   - type: web # Changed from 'static_site'
@@ -35,11 +34,9 @@ services:
     envVars:
       # This provides the base URL, e.g., https://pakomi-backend.onrender.com
       # The frontend's api.ts code will append '/api' to it.
+      # If you change the service name 'pakomi-backend', you must update this URL.
       - key: VITE_BACKEND_URL 
-        fromService:
-          type: web
-          name: pakomi-backend # Must match the backend service name above
-          property: url
+        value: https://pakomi-backend.onrender.com
     routes:
       # Rewrite all paths to index.html for a Single-Page Application
       - type: rewrite
