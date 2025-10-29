@@ -6,7 +6,7 @@ services:
   - type: web
     name: pakomi-backend
     runtime: node
-    plan: starter # 'starter' plan avoids sleeping. Use 'free' for testing, but it may be slow.
+    plan: free # 'starter' plan is legacy. Using 'free' for initial deployment.
     rootDir: backend
     buildCommand: "npm install && npm run prisma:generate && npm run prisma:deploy && npm run build"
     startCommand: "npm start"
@@ -24,13 +24,13 @@ services:
         value: https://pakomi-frontend.onrender.com
 
   # 2. Frontend Static Site (React/Vite)
-  - type: web # Changed from 'static_site'
+  - type: web
     name: pakomi-frontend
-    runtime: static # Added runtime for static site
-    plan: starter
+    runtime: static
+    plan: free # 'starter' plan is legacy. Using 'free' for initial deployment.
     rootDir: frontend
     buildCommand: "npm install && npm run build"
-    staticPublishPath: "dist" # Changed from 'publishDir'
+    staticPublishPath: "dist"
     envVars:
       # This provides the base URL, e.g., https://pakomi-backend.onrender.com
       # The frontend's api.ts code will append '/api' to it.
@@ -48,4 +48,4 @@ databases:
   - name: pakomi-db
     databaseName: pakomi_db
     user: pakomi_user
-    plan: starter # Use 'starter' for production. 'free' tier databases expire after 90 days.
+    plan: free # NOTE: Free tier databases expire after 90 days of inactivity.
