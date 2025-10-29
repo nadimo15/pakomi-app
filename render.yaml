@@ -6,7 +6,7 @@ services:
   - type: web
     name: pakomi-backend
     runtime: node
-    plan: free # 'starter' plan is legacy. Using 'free' for initial deployment.
+    plan: free # 'free' is a valid plan for 'web' service type.
     rootDir: backend
     buildCommand: "npm install && npm run prisma:generate && npm run prisma:deploy && npm run build"
     startCommand: "npm start"
@@ -24,18 +24,17 @@ services:
         value: https://pakomi-frontend.onrender.com
 
   # 2. Frontend Static Site (React/Vite)
-  - type: web
+  - type: static # CORRECTED: This is the proper type for a Vite/React frontend.
     name: pakomi-frontend
-    runtime: static
-    plan: free # 'starter' plan is legacy. Using 'free' for initial deployment.
+    # 'plan' is not needed for free static sites.
     rootDir: frontend
     buildCommand: "npm install && npm run build"
-    staticPublishPath: "dist"
+    publishDir: "dist" # CORRECTED: 'static' type uses 'publishDir'.
     envVars:
       # This provides the base URL, e.g., https://pakomi-backend.onrender.com
       # The frontend's api.ts code will append '/api' to it.
       # If you change the service name 'pakomi-backend', you must update this URL.
-      - key: VITE_BACKEND_URL 
+      - key: VITE_BACKEND_URL
         value: https://pakomi-backend.onrender.com
     routes:
       # Rewrite all paths to index.html for a Single-Page Application
