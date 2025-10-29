@@ -6,7 +6,7 @@ services:
   - type: web
     name: pakomi-backend
     runtime: node
-    plan: free # 'free' is a valid plan for 'web' service type.
+    # Omitting 'plan' to default to the free tier, as 'plan: free' was causing errors.
     rootDir: backend
     buildCommand: "npm install && npm run prisma:generate && npm run prisma:deploy && npm run build"
     startCommand: "npm start"
@@ -23,13 +23,13 @@ services:
       - key: FRONTEND_URL
         value: https://pakomi-frontend.onrender.com
 
-  # 2. Frontend Static Site (React/Vite)
-  - type: static_site # CORRECTED: This is the proper type for a Vite/React frontend.
+  # 2. Frontend Static Site (Configured as a 'web' service with a 'static' runtime)
+  - type: web # Using 'web' type as 'static_site' was not recognized.
     name: pakomi-frontend
-    # 'plan' is not needed for free static sites.
+    runtime: static # Special runtime for serving static content.
     rootDir: frontend
     buildCommand: "npm install && npm run build"
-    publishDir: "dist" # 'static_site' type uses 'publishDir'.
+    staticPublishPath: "dist" # Correct property for 'static' runtime.
     envVars:
       # This provides the base URL, e.g., https://pakomi-backend.onrender.com
       # The frontend's api.ts code will append '/api' to it.
