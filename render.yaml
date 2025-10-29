@@ -24,12 +24,12 @@ services:
         value: https://pakomi-frontend.onrender.com
 
   # 2. Frontend Static Site (React/Vite)
-  - type: static # CORRECTED: This is the proper type for a Vite/React frontend.
+  - type: static_site # CORRECTED: This is the proper type for a Vite/React frontend.
     name: pakomi-frontend
     # 'plan' is not needed for free static sites.
     rootDir: frontend
     buildCommand: "npm install && npm run build"
-    publishDir: "dist" # CORRECTED: 'static' type uses 'publishDir'.
+    publishDir: "dist" # 'static_site' type uses 'publishDir'.
     envVars:
       # This provides the base URL, e.g., https://pakomi-backend.onrender.com
       # The frontend's api.ts code will append '/api' to it.
