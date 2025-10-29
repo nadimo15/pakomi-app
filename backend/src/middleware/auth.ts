@@ -1,0 +1,63 @@
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+// FIX: Changed import to handle potential ESM/CJS module resolution issues with Prisma.
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+
+interface JwtPayload {
+    userId: string;
+    email: string;
+}
+
+// Extend Express Request type
+declare global {
+    namespace Express {
+        interface Request {
+            user?: {
+                id: string;
+                email: string;
+                permissions: string[];
+            }
+        }
+    }
+}
+
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Authentication token required' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+        
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.userId },
+            include: { role: true },
+        });
+
+        if (!user || !user.role) {
+            return res.status(401).json({ message: 'Invalid token: user not found' });
+        }
+
+        // Check for admin permissions
+        if (user.role.permissions.length === 0) {
+            return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+        }
+        
+        req.user = {
+            id: user.id,
+            email: user.email,
+            permissions: user.role.permissions as string[],
+        };
+
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+};
